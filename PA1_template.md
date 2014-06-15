@@ -8,7 +8,8 @@ This report presents both code and results. This report has 2 major parts; **Loa
 
 ### 1. load the dataset
 
-```{r load dataset}
+
+```r
 dataset <- read.csv("activity.csv", header=T)
 ```
 
@@ -17,7 +18,8 @@ dataset <- read.csv("activity.csv", header=T)
           
 #### Splitting over the days and calculate the total steps per day, mean steps and median steps
         
-```{r SplitOverDays}
+
+```r
 dayslist <- split(dataset, dataset$date)
 dailysteps <- data.frame()
 for (day in 1:length(dayslist)) {
@@ -32,7 +34,8 @@ colnames(dailysteps) <- c("date", "total.steps", "mean", "median")
 
 #### Splitting over 5-minute time intervals over all days and calculating the average steps per time interval
 
-```{r SplittingOverTimeInterval}
+
+```r
 intervals <- split(dataset, dataset$interval)
 intervalsDF <- data.frame()
 for (interval in 1:length(intervals)) {
@@ -45,7 +48,8 @@ colnames(intervalsDF) <- c("interval", "average.across.days")
 
 #### Imputing missing values
 
-```{r Imputation}
+
+```r
 # Imputation of missing values
 ImputedSteps <- data.frame()
 
@@ -65,7 +69,8 @@ ImputedDF <- cbind(ImputedSteps, dataset[,2:3])
 colnames(ImputedDF) <- colnames(dataset)
 ```
 
-```{r ImputedSet}
+
+```r
 # Splitting over days
 
 imputedlist <- split(ImputedDF, ImputedDF$date)
@@ -82,7 +87,8 @@ colnames(imputeddaily) <- c("date", "total.steps", "mean", "median")
 
 #### Adding weekdays and splitting over 5-minute time intervals over all days and calculating the average steps per time interval for weekdays versus weekends
 
-```{r Weedays}
+
+```r
 # Convert date column into Date/Time class
 ImputedDF$date <- strptime(ImputedDF$date, format="%Y-%m-%d")
 weekday <- weekdays(ImputedDF$date)
@@ -118,58 +124,68 @@ colnames(WDintervalsDF) <- c("interval", "average.across.days")
 
 **1. A histogram of the total number of steps taken each day**
 
-```{r TotalPerDay}
+
+```r
 barplot(dailysteps$total.steps, main="The total number of steps taken each day", xlab="Day", ylab="Total steps/day")
 ```
+
+![plot of chunk TotalPerDay](figure/TotalPerDay.png) 
 
 **2. The mean and median total number of steps taken per day**
 
 * The mean total number of steps taken per day  
         
-```{r MeanPerDay}
+
+```r
 meansteps <- mean(dailysteps$total.steps, na.rm=T)
 ```
 
-The mean total number of steps taken per day is **`r meansteps`** steps/day.
+The mean total number of steps taken per day is **9354.2295** steps/day.
   
 * The median total number of steps taken per day
         
-```{r MedianPerDay}
+
+```r
 mediansteps <- median(dailysteps$total.steps, na.rm=T)
 ```
 
-The median total number of steps taken per day is **`r mediansteps`** steps/day.  
+The median total number of steps taken per day is **10395** steps/day.  
 
 ## What is the average daily activity pattern?
 
 **1. A time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)**  
 
-```{r TimeSeriesPlot}
+
+```r
 plot(intervalsDF$interval, intervalsDF$average.across.days, type = "l", 
      main = "The average daily activity pattern", xlab="5-minute time interval",
      ylab= "Average steps across all days")
 ```
 
+![plot of chunk TimeSeriesPlot](figure/TimeSeriesPlot.png) 
+
 **2.The 5-minute interval that have the maximum average steps across all days**
 
-```{r MaxInterval}
+
+```r
 MaxSteps <- max(intervalsDF$average.across.days)
 MaxInterval <- intervalsDF$interval[grep(MaxSteps, intervalsDF$average.across.days)]
 ```
 
-The 5-minute interval, on average across all the days in the dataset, which contains the maximum number of steps is the **`r MaxInterval`** interval.
+The 5-minute interval, on average across all the days in the dataset, which contains the maximum number of steps is the **835** interval.
 
 ## Imputing missing values
 
 **1. The total number of missing values in the dataset**
 
-```{r MissingValues}
+
+```r
 missingvector <- is.na(dataset$steps)
 missing <- sum(missingvector)
 total <- length(missingvector)
 ```
 
-The total number of missing values is **`r missing`** out of total **`r total`** observations.
+The total number of missing values is **2304** out of total **17568** observations.
 
 **2&3. A strategy for filling in all of the missing values in the dataset.**
 
@@ -177,42 +193,49 @@ The strategy is replacing all NA values with thw average of the 5-minute time in
 
 **4. A histogram of the total number of steps taken each day for the imputed dataset**
 
-```{r ImputedTotalPerDay}
+
+```r
 barplot(imputeddaily$total.steps, main="The total number of steps taken each day", xlab="Day", ylab="Total steps/day")
 ```
+
+![plot of chunk ImputedTotalPerDay](figure/ImputedTotalPerDay.png) 
 
 **5. The mean and median total number of steps taken per day for the imputed dataset**
 
 * The mean total number of steps taken per day  
         
-```{r MeanPerDay.imputed}
+
+```r
 meansteps.imp <- mean(imputeddaily$total.steps)
 ```
 
-The mean total number of steps taken per day is **`r meansteps.imp`** steps/day.
+The mean total number of steps taken per day is **1.0766 &times; 10<sup>4</sup>** steps/day.
   
 * The median total number of steps taken per day
         
-```{r MedianPerDay.imputed}
+
+```r
 mediansteps.imp <- median(imputeddaily$total.steps)
 ```
 
-The median total number of steps taken per day is **`r mediansteps.imp`** steps/day.
+The median total number of steps taken per day is **1.0766 &times; 10<sup>4</sup>** steps/day.
 
 **6. How values differ from the estimates from the non-imputed dataset What is the impact of imputing missing data on the estimates of the total daily number of steps?**
 
-```{r Difference}
+
+```r
 diffmean <- meansteps.imp-meansteps
 diffmedian <- mediansteps.imp-mediansteps
 ```
 
-As the NA values was ignored in calculating the summation of daiy steps in the non-imputed dataset, its mean is lower by **`r diffmean`** and its median is lower by **`r diffmedian`** than the imputed dataset whose fields were filled with positive values. 
+As the NA values was ignored in calculating the summation of daiy steps in the non-imputed dataset, its mean is lower by **1411.9592** and its median is lower by **371.1887** than the imputed dataset whose fields were filled with positive values. 
 
 ## Differences in activity patterns between weekdays and weekends
 
 **A panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).**
 
-```{r PlotWEvsWD}
+
+```r
 par(mfrow=c(2,1))
 plot(WEintervalsDF$interval, WEintervalsDF$average.across.days, type = "l", 
      main = "Weekend", xlab="Interval",
@@ -221,6 +244,8 @@ plot(WDintervalsDF$interval, WDintervalsDF$average.across.days, type = "l",
      main = "Weekday", xlab="Interval",
      ylab= "Average steps")
 ```
+
+![plot of chunk PlotWEvsWD](figure/PlotWEvsWD.png) 
 
 
 
